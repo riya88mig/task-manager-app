@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Swal from "sweetalert2";
 
 function Dashboard() {
@@ -8,27 +8,23 @@ function Dashboard() {
   const [tasks, setTasks] = useState([]);
   const [activeTab, setActiveTab] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-
   const [loading, setLoading] = useState(false);
+
   const recordsPerPage = 5;
 
-  /* ================= ROUTE PROTECTION ================= */
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) navigate("/");
-    fetchTasks();
-  }, [fetchTasks, navigate]);
-
-  /* ================= FETCH ================= */
-  const fetchTasks = async () => {
+  /* ================= FETCH TASKS ================= */
+  const fetchTasks = useCallback(async () => {
     const token = localStorage.getItem("token");
 
     try {
       setLoading(true);
 
-      const res = await fetch("https://taskmanagerappriya-avc6dhenhvgjeyd4.centralindia-01.azurewebsites.net/api/Task", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        "https://taskmanagerappriya-avc6dhenhvgjeyd4.centralindia-01.azurewebsites.net/api/Task",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       if (res.status === 401) {
         Swal.fire("Session Expired", "Please login again", "warning");
@@ -46,7 +42,19 @@ function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
+
+  /* ================= ROUTE PROTECTION ================= */
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/");
+      return;
+    }
+
+    fetchTasks();
+  }, [fetchTasks, navigate]);
 
   /* ================= REFRESH ================= */
   const handleRefresh = () => {
@@ -248,42 +256,18 @@ const getStatusStyle = (status) => ({
 /* CSS */
 const style = document.createElement("style");
 style.innerHTML = `
-
 .btn-primary { background:#2563eb;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;}
-.btn-primary:hover { background:#1d4ed8;}
-
 .btn-danger { background:#ef4444;color:white;padding:6px 10px;border:none;border-radius:6px;margin-left:5px;cursor:pointer;}
-.btn-danger:hover { background:#dc2626;}
-
 .btn-secondary { background:#e5e7eb;padding:6px 10px;border:none;border-radius:6px;cursor:pointer;margin-left:5px;}
-.btn-secondary:hover { background:#d1d5db;}
 
-/* LOADER */
-.loader {
-  text-align:center;
-  margin-top:20px;
-  font-weight:bold;
-}
+.loader { text-align:center; margin-top:20px; font-weight:bold; }
 
-/* CARD BASE */
-.card {
-  flex:1;
-  padding:15px;
-  border-radius:10px;
-  cursor:pointer;
-  text-align:center;
-  border:1px solid #e5e7eb;
-  transition:0.2s;
-}
-.card:hover { transform:scale(1.05); }
-
-/* CARD COLORS */
-.card.All { background:#eef2ff; border-left:6px solid #6366f1; }
-.card.Pending { background:#fee2e2; border-left:6px solid #ef4444; }
-.card.Completed { background:#dcfce7; border-left:6px solid #22c55e; }
-.card.InProgress { background:#e0f2fe; border-left:6px solid #38bdf8; }
-.card.Hold { background:#fef3c7; border-left:6px solid #f59e0b; }
-
+.card { flex:1; padding:15px; border-radius:10px; cursor:pointer; text-align:center; border:1px solid #e5e7eb; }
+.card.All { background:#eef2ff; }
+.card.Pending { background:#fee2e2; }
+.card.Completed { background:#dcfce7; }
+.card.InProgress { background:#e0f2fe; }
+.card.Hold { background:#fef3c7; }
 `;
 document.head.appendChild(style);
 
