@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 # 🚀 Task Management System
 
