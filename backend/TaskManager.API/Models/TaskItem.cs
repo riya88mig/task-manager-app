@@ -8,5 +8,7 @@
         public string Status { get; set; } = "Pending"; // Pending, InProgress, Completed, Hold
         public int UserId { get; set; }
         public User ? User { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? ModifiedAt { get; set; }
     }
 }

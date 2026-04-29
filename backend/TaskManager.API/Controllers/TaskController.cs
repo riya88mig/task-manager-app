@@ -18,13 +18,12 @@ namespace TaskManager.API.Controllers
             _context = context;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin,User")]
         [HttpGet]
         public IActionResult GetTasks(string? status)
         {
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
             var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role);
-
             if (userIdClaim == null || roleClaim == null)
                 return Unauthorized();
 
@@ -33,24 +32,34 @@ namespace TaskManager.API.Controllers
 
             IQueryable<TaskItem> query;
 
-            // ✅ Admin → all tasks
+            // Admin → all tasks, User → only own tasks
             if (role == "Admin")
-            {
                 query = _context.Tasks;
-            }
             else
-            {
-                // ✅ User → only own tasks
                 query = _context.Tasks.Where(t => t.UserId == userId);
-            }
 
-            // ✅ Apply status filter
+            // Apply status filter
             if (!string.IsNullOrEmpty(status))
-            {
                 query = query.Where(t => t.Status.ToLower() == status.ToLower());
-            }
 
-            return Ok(query.ToList());
+            // Join with Users to get CreatedBy name
+            var result = query
+                .Join(_context.Users,
+                      task => task.UserId,
+                      user => user.Id,
+                      (task, user) => new
+                      {
+                          task.Id,
+                          task.Title,
+                          task.Description,
+                          task.Status,
+                          task.UserId,
+                          task.CreatedAt,
+                          CreatedBy = user.Name
+                      })
+                .ToList();
+
+            return Ok(result);
         }
 
         [Authorize]
@@ -67,7 +76,8 @@ namespace TaskManager.API.Controllers
                 Title = dto.Title,
                 Description = dto.Description,
                 Status = "Pending",
-                UserId = userId
+                UserId = userId,
+                CreatedAt = DateTime.UtcNow
             };
 
             _context.Tasks.Add(task);
@@ -108,7 +118,7 @@ namespace TaskManager.API.Controllers
             task.Title = dto.Title;
             task.Description = dto.Description;
             task.Status = dto.Status;
-
+            task.ModifiedAt = DateTime.UtcNow;
             _context.SaveChanges();
 
             return Ok(task);
@@ -136,7 +146,7 @@ namespace TaskManager.API.Controllers
             return Ok(new { message = "Task deleted successfully" });
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin,User")]
         [HttpGet("counts")]
         public IActionResult GetTaskCounts()
         {

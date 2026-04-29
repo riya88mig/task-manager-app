@@ -27,8 +27,9 @@ function CreateTask() {
 
   const fetchTasks = async () => {
     const token = localStorage.getItem("token");
-
     const res = await fetch("https://taskmanagerappriya-avc6dhenhvgjeyd4.centralindia-01.azurewebsites.net/api/Task", {
+
+    
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -42,6 +43,16 @@ function CreateTask() {
     setCurrentPage(1);
     fetchTasks();
   };
+
+const formatDate = (dateStr) => {
+  const d = new Date(dateStr);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  const hours = String(d.getHours()).padStart(2, "0");
+  const mins = String(d.getMinutes()).padStart(2, "0");
+  return `${day}-${month}-${year} ${hours}:${mins}`;
+};
 
   // FILTER + SEARCH
   const filteredTasks = tasks
@@ -255,8 +266,11 @@ function CreateTask() {
               <th style={thtd}>S.No</th>
               <th style={thtd}>Title</th>
               <th style={thtd}>Description</th>
-              <th style={thtd}>Status</th>
+              <th style={thtd}>Status</th>              
               <th style={thtd}>Action</th>
+              <th style={thtd}>Created By</th>
+              <th style={thtd}>Created At</th>
+              
             </tr>
           </thead>
 
@@ -318,7 +332,6 @@ function CreateTask() {
                     <span style={getStatusStyle(t.Status)}>{t.Status}</span>
                   )}
                 </td>
-
                 {/* ACTION */}
                 <td style={thtd}>
                   {editTaskId === t.Id ? (
@@ -342,7 +355,9 @@ function CreateTask() {
                   )}
                 </td>
 
-              </tr>
+                <td style={thtd}>{t.CreatedBy}</td>
+                <td style={thtd}>{formatDate(t.CreatedAt)}</td>           
+   </tr>
             ))}
           </tbody>
         </table>

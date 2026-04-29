@@ -6,6 +6,14 @@ frontend/build
 backend/bin/
 backend/obj/
 
+
+.vs/
+backend/.vs/
+*.vsidx
+obj/
+bin/
+
+
 # Env
 .env
 

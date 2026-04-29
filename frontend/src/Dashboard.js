@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; 
 import { useEffect, useState, useCallback } from "react";
 import Swal from "sweetalert2";
 
@@ -11,6 +11,35 @@ function Dashboard() {
   const [loading, setLoading] = useState(false);
 
   const recordsPerPage = 5;
+
+  // ✅ ADDED: Get Role from Token
+  const getUserRole = () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return null;
+
+      const payload = JSON.parse(atob(token.split(".")[1]));
+
+      return (
+        payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ||
+        payload.role
+      );
+    } catch {
+      return null;
+    }
+  };
+
+  const role = getUserRole();
+
+const formatDate = (dateStr) => {
+  const d = new Date(dateStr);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  const hours = String(d.getHours()).padStart(2, "0");
+  const mins = String(d.getMinutes()).padStart(2, "0");
+  return `${day}-${month}-${year} ${hours}:${mins}`;
+};
 
   /* ================= FETCH TASKS ================= */
   const fetchTasks = useCallback(async () => {
@@ -101,6 +130,17 @@ function Dashboard() {
         </div>
 
         <div>
+          {/* ✅ ADDED: Admin-only button */}
+          {role === "Admin" && (
+            <button
+              onClick={() => navigate("/create-user")}
+              className="btn-primary"
+              style={{ marginRight: "5px" }}  
+            >
+              + New User
+            </button>
+          )}
+
           <button
             onClick={() => navigate("/create-task")}
             className="btn-primary"
@@ -147,6 +187,9 @@ function Dashboard() {
               <th style={thtd}>Title</th>
               <th style={thtd}>Description</th>
               <th style={thtd}>Status</th>
+              <th style={thtd}>Created By</th>
+              <th style={thtd}>Created At</th>
+
             </tr>
           </thead>
 
@@ -161,6 +204,8 @@ function Dashboard() {
                 <td style={thtd}>
                   <span style={getStatusStyle(t.Status)}>{t.Status}</span>
                 </td>
+                  <td style={thtd}>{t.CreatedBy}</td>
+                  <td style={thtd}>{formatDate(t.CreatedAt)}</td>
               </tr>
             ))}
           </tbody>

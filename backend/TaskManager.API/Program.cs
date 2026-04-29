@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TaskManager.API.Services;
+using System.Security.Claims;
 
 namespace TaskManager.API
 {
@@ -48,6 +49,7 @@ namespace TaskManager.API
                     ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
+                    RoleClaimType = ClaimTypes.Role,   //ADDED THIS
                     IssuerSigningKey = new SymmetricSecurityKey(key)
                 };
             });
@@ -58,10 +60,11 @@ namespace TaskManager.API
                 options.AddPolicy("AllowReact",
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost:3000")
+                        policy.WithOrigins("http://localhost:3000",
+                "https://jolly-stone-0d28c7400.7.azurestaticapps.net")
                               .AllowAnyHeader()
-                              .AllowAnyMethod()
-                              .AllowCredentials(); // ✅ added (important)
+                              .AllowAnyMethod();
+                              //.AllowCredentials(); // ✅ added (important)
                     });
             });
 
@@ -107,11 +110,14 @@ namespace TaskManager.API
 
             // ✅ Middleware pipeline (ORDER IS CRITICAL)
 
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
+            // if (app.Environment.IsDevelopment())
+            // {
+            //     app.UseSwagger();
+            //     app.UseSwaggerUI();
+            // }
+
+            app.UseSwagger();
                 app.UseSwaggerUI();
-            }
 
             app.UseHttpsRedirection();
 

@@ -4192,11 +4192,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\RIYA\\TaskManager.API\\TaskManager.API\\TaskManager.API.csproj",
+      "projectUniqueName": "D:\\RIYA\\TaskManager\\backend\\TaskManager.API\\TaskManager.API.csproj",
       "projectName": "TaskManager.API",
-      "projectPath": "D:\\RIYA\\TaskManager.API\\TaskManager.API\\TaskManager.API.csproj",
+      "projectPath": "D:\\RIYA\\TaskManager\\backend\\TaskManager.API\\TaskManager.API.csproj",
       "packagesPath": "C:\\Users\\ACER\\.nuget\\packages\\",
-      "outputPath": "D:\\RIYA\\TaskManager.API\\TaskManager.API\\obj\\",
+      "outputPath": "D:\\RIYA\\TaskManager\\backend\\TaskManager.API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
